@@ -64,6 +64,16 @@ Regularly, we get the question if we have an image of our Raspberry Pi with some
 
 ------------
 
+## Camera.
+
+You can connect a camera to the given C++ examples. With Buster, it was simple. You replaced the filename with a zero (0) and got the images from the RaspiCam instead of a file. Those days are gone with the introduction of Bullseye.<br>
+Nowadays you have two options. You can either use Gstreamer or LVVC. An example of both can be found in this SD image.
+You can also find both methods implemented in the YoloX example.
+
+![image](https://github.com/Qengineering/RPi-Bullseye-DNN-image/assets/44409029/e203e5a1-ea5e-41f7-9e10-2f64f4f511ed)
+
+------------
+
 ## WiFi.
 
 Since everyone has a unique password on their WiFi connection, we have not activated the WiFi.<br/>
@@ -82,11 +92,76 @@ To enable the wireless LAN follow the next steps:<br/>
 
 ------------
 
-## Camera.
+## TensorFlow-Lite.
 
-You can connect a camera to the given C++ examples. With Buster, it was simple. You replaced the filename with a zero (0) and got the images from the RaspiCam instead of a file. Those days are gone with the introduction of Bullseye.
+Tensorflow-Lite is aimed at small, lightweight devices, such as the Raspberry Pi. Hence the use of a single C++ library.<br>
+Since version 2.7, the Tensorflow team has decided to focus on Python for its Lite version. The single large C++ library has since expired.<br>
+Now you only have small separate libraries. When programming you will have to specify all the necessary files separately. And these are quite a few.
+To make working with Tensorflow-Lite easier, we have packed everything in one package.<br>
 
-You can use G
+![image](https://github.com/Qengineering/RPi-Bullseye-DNN-image/assets/44409029/2eb572c1-a4ab-486d-8045-d7bcb6e24aa0)<br><br>
+In addition, it is now also possible to use Tensorflow-Lite in Python.<br>
+![image](https://github.com/Qengineering/RPi-Bullseye-DNN-image/assets/44409029/80b81693-6d73-4aa1-9c50-e81d20926a75)<br>
+```python
+from tflite_runtime.interpreter import Interpreter 
+from PIL import Image
+import numpy as np
+import time
+
+def load_labels(path): # Read the labels from the text file as a Python list.
+  with open(path, 'r') as f:
+    return [line.strip() for i, line in enumerate(f.readlines())]
+
+def set_input_tensor(interpreter, image):
+  tensor_index = interpreter.get_input_details()[0]['index']
+  input_tensor = interpreter.tensor(tensor_index)()[0]
+  input_tensor[:, :] = image
+
+def classify_image(interpreter, image, top_k=1):
+  set_input_tensor(interpreter, image)
+
+  interpreter.invoke()
+  output_details = interpreter.get_output_details()[0]
+  output = np.squeeze(interpreter.get_tensor(output_details['index']))
+
+  scale, zero_point = output_details['quantization']
+  output = scale * (output - zero_point)
+
+  ordered = np.argpartition(-output, 1)
+  return [(i, output[i]) for i in ordered[:top_k]][0]
+
+data_folder = "/home/pi/software/TensorFlow_Lite_Classification_RPi_64-bits/"
+
+model_path = data_folder + "mobilenet_v1_1.0_224_quant.tflite"
+label_path = data_folder + "labels.txt"
+
+interpreter = Interpreter(model_path)
+print("Model Loaded Successfully.")
+
+interpreter.allocate_tensors()
+_, height, width, _ = interpreter.get_input_details()[0]['shape']
+print("Image Shape (", width, ",", height, ")")
+
+# Load an image to be classified.
+image = Image.open(data_folder + "tabby.jpeg").convert('RGB').resize((width, height))
+
+# Classify the image.
+time1 = time.time()
+label_id, prob = classify_image(interpreter, image)
+time2 = time.time()
+classification_time = np.round(time2-time1, 3)
+print("Classificaiton Time =", classification_time, "seconds.")
+
+# Read class labels.
+labels = load_labels(label_path)
+
+# Return the classification label of the image.
+classification_label = labels[label_id]
+print("Image Label is :", classification_label, ", with Accuracy :", np.round(prob*100, 2), "%.")
+```
+
+
+
 
 ------------
 
