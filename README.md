@@ -28,6 +28,8 @@ Regularly, we get the question if we have an image of our Raspberry Pi with some
 
 ## Contents.
 
+Clicking on the links below will direct you to our GitHub repo.<br>
+
 - [OpenCV](https://github.com/Qengineering/OpenCV-Livecam-Raspberry-Pi)
 - [Classification](https://github.com/Qengineering/TensorFlow_Lite_Classification_RPi_64-bits)
 - [SSD](https://github.com/Qengineering/TensorFlow_Lite_SSD_RPi_64-bits)
@@ -48,6 +50,8 @@ Regularly, we get the question if we have an image of our Raspberry Pi with some
 ------------
 
 ## Pre-installed frameworks.
+
+Clicking on the links below will direct you to our installation guide.<br>
 
 - [OpenCV](https://qengineering.eu/deep-learning-with-opencv-on-raspberry-pi-4.html) 4.7.0
 - [TensorFLow](https://qengineering.eu/install-tensorflow-2.4.0-on-raspberry-64-os.html) 2.10.0
